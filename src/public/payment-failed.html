@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment Failed - Restaurant ChatBot</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        .failed-container {
+            text-align: center;
+            padding: 40px 20px;
+        }
+        .failed-icon {
+            font-size: 64px;
+            color: #f44336;
+            margin-bottom: 20px;
+        }
+        .failed-message {
+            color: #333;
+            margin-bottom: 30px;
+        }
+        .retry-button {
+            padding: 12px 24px;
+            background: #f44336;
+            color: white;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            transition: all 0.3s ease;
+            margin-right: 10px;
+        }
+        .back-button {
+            padding: 12px 24px;
+            background: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            transition: all 0.3s ease;
+        }
+        .retry-button:hover, .back-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="failed-container">
+            <div class="failed-icon">❌</div>
+            <h1 class="failed-message">Payment Failed</h1>
+            <p>Sorry, we couldn't process your payment. Please try again.</p>
+            <div style="margin-top: 20px;">
+                <a href="/checkout.html" class="retry-button">Retry Payment</a>
+                <a href="/" class="back-button">Return to Chat</a>
+            </div>
+        </div>
+    </div>
+</body>
+</html> 

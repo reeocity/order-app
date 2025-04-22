@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment Successful</title>
+    <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+    <div class="container">
+        <div class="success-message">
+            <h1>Payment Successful!</h1>
+            <p>Thank you for your order. Your payment has been processed successfully.</p>
+            <p>A confirmation email has been sent to your registered email address.</p>
+            <div id="pdfStatus"></div>
+            <div class="actions">
+                <button id="downloadReceipt" class="btn">Download Receipt</button>
+                <a href="/" class="btn">Return to Home</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const orderId = urlParams.get('orderId');
+            const pdfStatus = document.getElementById('pdfStatus');
+            const downloadBtn = document.getElementById('downloadReceipt');
+
+            if (!orderId) {
+                pdfStatus.innerHTML = '<p class="error">Order ID not found</p>';
+                downloadBtn.disabled = true;
+                return;
+            }
+
+            try {
+                // Generate and download PDF
+                const response = await fetch(`/api/orders/${orderId}/receipt`, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (response.ok) {
+                    const blob = await response.blob();
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `order-${orderId}.pdf`;
+                    document.body.appendChild(a);
+                    a.click();
+                    window.URL.revokeObjectURL(url);
+                    document.body.removeChild(a);
+                    pdfStatus.innerHTML = '<p class="success">Receipt downloaded successfully</p>';
+                } else {
+                    throw new Error('Failed to generate receipt');
+                }
+            } catch (error) {
+                console.error('Error generating PDF:', error);
+                pdfStatus.innerHTML = '<p class="error">Failed to generate receipt. Please try again later.</p>';
+                downloadBtn.disabled = true;
+            }
+        });
+    </script>
+</body>
+</html> 

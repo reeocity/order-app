@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Restaurant Chatbot</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="app-container">
+        <header class="header">
+            <h1>Restaurant Assistant</h1>
+            <p>Welcome! I'm here to help you order delicious food.</p>
+        </header>
+        
+        <main class="chat-container">
+            <div class="chat-messages" id="chatMessages">
+                <!-- Messages will be inserted here -->
+            </div>
+            
+            <div class="chat-input">
+                <input type="text" id="chatInput" placeholder="Type your message here..." autocomplete="off">
+            </div>
+        </main>
+    </div>
+
+    <!-- Loading indicator -->
+    <div id="loadingIndicator" style="display: none;">
+        Processing...
+    </div>
+
+    <!-- Error message container -->
+    <div id="errorContainer" style="display: none;">
+        <p id="errorMessage"></p>
+    </div>
+
+    <!-- Scripts -->
+    <script src="app.js"></script>
+</body>
+</html> 

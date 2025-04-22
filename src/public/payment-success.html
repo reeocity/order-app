@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment Successful - Restaurant ChatBot</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        .success-container {
+            text-align: center;
+            padding: 40px 20px;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        .success-icon {
+            color: #4CAF50;
+            font-size: 64px;
+            margin-bottom: 20px;
+        }
+        .success-message {
+            color: #333;
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+        .receipt-info {
+            background-color: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+        .button {
+            display: inline-block;
+            padding: 12px 24px;
+            background: #4CAF50;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            margin: 10px;
+        }
+        .button:hover {
+            background: #45a049;
+            transform: translateY(-2px);
+        }
+        .download-button {
+            background: #2196F3;
+        }
+        .download-button:hover {
+            background: #1976D2;
+        }
+        .error-message {
+            color: #f44336;
+            margin: 10px 0;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="success-container">
+        <div class="success-icon">✓</div>
+        <h1 class="success-message">Payment Successful!</h1>
+        <div class="receipt-info">
+            <p>Your order has been confirmed and your receipt should download automatically.</p>
+            <p>If the download doesn't start automatically, please click the button below:</p>
+            <div id="errorMessage" class="error-message">
+                There was an issue generating the PDF receipt automatically. Please try the manual download button below.
+            </div>
+            <a href="#" id="downloadButton" class="button download-button">Download Receipt</a>
+        </div>
+        <a href="/" class="button">Return to Chat</a>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Check if there was an error with PDF generation
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get('pdf') === 'failed') {
+                document.getElementById('errorMessage').style.display = 'block';
+            }
+
+            // Get order ID from URL or localStorage
+            const orderId = urlParams.get('orderId') || localStorage.getItem('lastOrderId');
+            
+            if (orderId) {
+                const downloadButton = document.getElementById('downloadButton');
+                downloadButton.href = `/api/orders/download-receipt/${orderId}`;
+            }
+        });
+    </script>
+</body>
+</html> 
