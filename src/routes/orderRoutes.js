@@ -32,11 +32,16 @@ router.get('/current', async (req, res) => {
 // Create new order
 router.post('/', async (req, res) => {
     try {
+        console.log('Session ID:', req.session.id);
+        console.log('Request body:', req.body);
+
         // Check for existing pending order
         let order = await Order.findOne({
             sessionId: req.session.id,
             status: 'pending'
         });
+
+        console.log('Existing order:', order);
 
         if (order) {
             // Update existing order
@@ -46,6 +51,7 @@ router.post('/', async (req, res) => {
                 order.scheduledFor = new Date(req.body.scheduledFor);
             }
             await order.save();
+            console.log('Updated order:', order);
         } else {
             // Create new order with temporary values for required fields
             order = new Order({
@@ -59,11 +65,12 @@ router.post('/', async (req, res) => {
                 tableNumber: 0
             });
             await order.save();
+            console.log('Created new order:', order);
         }
         res.json(order);
     } catch (error) {
         console.error('Error creating order:', error);
-        res.status(400).json({ message: 'Error creating order' });
+        res.status(400).json({ message: 'Error creating order', error: error.message });
     }
 });
 
@@ -92,31 +99,19 @@ router.post('/cancel', async (req, res) => {
 // Initialize payment
 router.post('/checkout', async (req, res) => {
     try {
+        console.log('Checkout Session ID:', req.session.id);
         const { name, email, tableNumber, scheduledFor } = req.body;
 
-        // Validate Paystack configuration
-        if (!process.env.PAYSTACK_SECRET_KEY) {
-            console.error('Paystack secret key not configured');
-            return res.status(500).json({ 
-                message: 'Payment system not properly configured. Please contact support.',
-                error: 'PAYSTACK_NOT_CONFIGURED'
-            });
-        }
-
-        if (!process.env.BASE_URL) {
-            console.error('BASE_URL not configured');
-            return res.status(500).json({ 
-                message: 'Server configuration error. Please contact support.',
-                error: 'BASE_URL_NOT_CONFIGURED'
-            });
-        }
-
+        // Find pending order for this session
         const order = await Order.findOne({
             sessionId: req.session.id,
             status: 'pending'
         });
 
+        console.log('Found order at checkout:', order);
+
         if (!order) {
+            console.log('No active order found for session:', req.session.id);
             return res.status(404).json({ message: 'No active order found' });
         }
 
@@ -128,13 +123,14 @@ router.post('/checkout', async (req, res) => {
             order.scheduledFor = new Date(scheduledFor);
         }
         await order.save();
+        console.log('Updated order with customer details:', order);
 
         // Initialize Paystack transaction
         const paymentData = {
             amount: Math.round(order.totalAmount * 100), // Convert to kobo
             email: email,
             reference: `ORDER_${order._id}_${Date.now()}`,
-            callback_url: `${process.env.BASE_URL}/api/orders/verify-payment?orderId=${order._id}`,
+            callback_url: `${process.env.BASE_URL || 'http://localhost:3000'}/api/orders/verify-payment?orderId=${order._id}`,
             metadata: {
                 order_id: order._id,
                 custom_fields: [
@@ -157,14 +153,17 @@ router.post('/checkout', async (req, res) => {
             }
         };
 
+        console.log('Initializing payment with data:', paymentData);
         const payment = await Paystack.transaction.initialize(paymentData);
+        console.log('Payment initialized:', payment);
+
         res.json({
             authorization_url: payment.data.authorization_url,
             reference: payment.data.reference,
             orderId: order._id
         });
     } catch (error) {
-        console.error('Error initializing payment:', error);
+        console.error('Error in checkout:', error);
         res.status(500).json({ 
             message: 'Error initializing payment. Please try again.',
             error: error.message 

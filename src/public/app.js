@@ -129,7 +129,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     async function showMenu() {
         try {
-            const response = await fetch('/api/menu');
+            const response = await fetch('/api/menu', {
+                credentials: 'include'
+            });
             menuItems = await response.json();
             isSelectingFromOptions = false;
             
@@ -224,7 +226,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     async function showOrderHistory() {
         try {
-            const response = await fetch('/api/orders/history');
+            const response = await fetch('/api/orders/history', {
+                credentials: 'include'
+            });
             const orders = await response.json();
             
             if (orders.length === 0) {
@@ -288,7 +292,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
         try {
             const response = await fetch('/api/orders/cancel', {
-                method: 'POST'
+                method: 'POST',
+                credentials: 'include'
             });
             
             if (response.ok) {

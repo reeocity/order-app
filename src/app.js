@@ -16,7 +16,7 @@ const app = express();
 
 // Middleware
 app.use(cors({
-    origin: process.env.BASE_URL || 'http://localhost:3000',
+    origin: true, // Allow all origins
     credentials: true
 }));
 
@@ -29,12 +29,14 @@ app.use(session({
     saveUninitialized: true,
     cookie: { 
         secure: process.env.NODE_ENV === 'production',
-        sameSite: 'lax',
+        sameSite: 'none',
         maxAge: 24 * 60 * 60 * 1000 // 24 hours
     },
     store: process.env.MONGODB_URI ? new MongoStore({
         mongoUrl: process.env.MONGODB_URI,
-        collection: 'sessions'
+        collection: 'sessions',
+        autoRemove: 'interval',
+        autoRemoveInterval: 10 // In minutes
     }) : null
 }));
 
