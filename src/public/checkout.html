@@ -112,10 +112,6 @@
             
             <button type="submit" class="submit-btn" id="submitBtn">Complete Order</button>
         </form>
-
-        <div style="margin-top: 20px; text-align: center;">
-            <button onclick="window.location.href='/'" class="btn" style="background: #666;">Back to Order</button>
-        </div>
     </div>
 
     <script>
@@ -156,17 +152,14 @@
                     errorElement.textContent = 'No active order found. Please create an order first.';
                     errorElement.style.display = 'block';
                     submitBtn.disabled = true;
-                    
-                    // Add a button to go back
-                    errorElement.innerHTML += '<br><br><button onclick="window.location.href=\'/\'" class="btn">Return to Order Page</button>';
-                } else {
-                    logDebug('Active order found, enabling form');
+                    window.location.href = '/';
                 }
             } catch (error) {
                 logDebug(`Error checking current order: ${error.message}`);
                 console.error('Error checking current order:', error);
                 errorElement.textContent = 'Error checking current order. Please try again.';
                 errorElement.style.display = 'block';
+                submitBtn.disabled = true;
             }
         });
 
@@ -180,15 +173,12 @@
             };
 
             try {
-                // Show loading state
                 loadingElement.style.display = 'block';
                 errorElement.style.display = 'none';
                 successElement.style.display = 'none';
                 submitBtn.disabled = true;
 
-                console.log('Submitting checkout form...', formData);
-
-                // Initialize payment with customer details
+                logDebug('Submitting checkout form...');
                 const checkoutResponse = await fetch(`${baseUrl}/api/orders/checkout`, {
                     method: 'POST',
                     headers: {
@@ -199,20 +189,18 @@
                     body: JSON.stringify(formData)
                 });
 
-                console.log('Checkout response status:', checkoutResponse.status);
+                logDebug(`Checkout response status: ${checkoutResponse.status}`);
                 const responseData = await checkoutResponse.json();
-                console.log('Checkout response data:', responseData);
+                logDebug(`Checkout response data: ${JSON.stringify(responseData, null, 2)}`);
 
                 if (!checkoutResponse.ok) {
                     throw new Error(responseData.message || 'Failed to initialize payment');
                 }
 
-                // Store order ID in localStorage before redirect
                 if (responseData.orderId) {
                     localStorage.setItem('lastOrderId', responseData.orderId);
                 }
 
-                // Redirect to payment page
                 if (responseData.authorization_url) {
                     successElement.textContent = 'Redirecting to payment page...';
                     successElement.style.display = 'block';
@@ -222,14 +210,11 @@
                 }
 
             } catch (error) {
-                console.error('Error:', error);
+                logDebug(`Error during checkout: ${error.message}`);
                 errorElement.textContent = error.message || 'An error occurred while processing your payment. Please try again.';
                 errorElement.style.display = 'block';
-                // Redirect back to order page if no active order
                 if (error.message === 'No active order found') {
-                    setTimeout(() => {
-                        window.location.href = '/';
-                    }, 3000);
+                    window.location.href = '/';
                 }
             } finally {
                 loadingElement.style.display = 'none';

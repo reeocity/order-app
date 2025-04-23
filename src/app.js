@@ -17,9 +17,11 @@ const app = express();
 // Middleware
 app.use(cors({
     origin: process.env.NODE_ENV === 'production' 
-        ? 'https://order-app-ashy-delta.vercel.app' 
+        ? ['https://order-app-ashy-delta.vercel.app', 'https://restaurant-bot-ibrahimola.vercel.app']
         : 'http://localhost:3000',
-    credentials: true
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'Accept']
 }));
 
 app.use(bodyParser.json());
@@ -28,14 +30,13 @@ app.use(bodyParser.json());
 app.use(session({
     secret: process.env.SESSION_SECRET || 'your-secret-key',
     resave: false,
-    saveUninitialized: true,
+    saveUninitialized: false,
+    proxy: true, // Required for Vercel
     cookie: { 
         secure: process.env.NODE_ENV === 'production',
         sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
         maxAge: 24 * 60 * 60 * 1000, // 24 hours
-        domain: process.env.NODE_ENV === 'production' 
-            ? '.vercel.app'
-            : 'localhost'
+        httpOnly: true
     },
     store: process.env.MONGODB_URI ? new MongoStore({
         mongoUrl: process.env.MONGODB_URI,
