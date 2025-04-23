@@ -19,12 +19,24 @@ router.get('/history', async (req, res) => {
 // Get current active order
 router.get('/current', async (req, res) => {
     try {
+        console.log('[GET /current] Session ID:', req.session.id);
+        console.log('[GET /current] Session:', req.session);
+
         const order = await Order.findOne({
             sessionId: req.session.id,
             status: 'pending'
         });
-        res.json(order || { items: [], total: 0 });
+
+        console.log('[GET /current] Found order:', order);
+        
+        if (!order) {
+            console.log('[GET /current] No pending order found for session');
+            return res.json({ items: [], total: 0 });
+        }
+
+        res.json(order);
     } catch (error) {
+        console.error('[GET /current] Error:', error);
         res.status(500).json({ message: 'Error fetching current order' });
     }
 });
@@ -32,8 +44,9 @@ router.get('/current', async (req, res) => {
 // Create new order
 router.post('/', async (req, res) => {
     try {
-        console.log('Session ID:', req.session.id);
-        console.log('Request body:', req.body);
+        console.log('[POST /] Creating new order');
+        console.log('[POST /] Session ID:', req.session.id);
+        console.log('[POST /] Request body:', req.body);
 
         // Check for existing pending order
         let order = await Order.findOne({
@@ -41,35 +54,41 @@ router.post('/', async (req, res) => {
             status: 'pending'
         });
 
-        console.log('Existing order:', order);
+        console.log('[POST /] Existing order:', order);
 
         if (order) {
             // Update existing order
+            console.log('[POST /] Updating existing order');
             order.items = req.body.items;
             order.totalAmount = req.body.totalAmount;
             if (req.body.scheduledFor) {
                 order.scheduledFor = new Date(req.body.scheduledFor);
             }
             await order.save();
-            console.log('Updated order:', order);
+            console.log('[POST /] Updated order:', order);
         } else {
-            // Create new order with temporary values for required fields
+            // Create new order
+            console.log('[POST /] Creating new order with session ID:', req.session.id);
             order = new Order({
                 sessionId: req.session.id,
                 items: req.body.items,
                 totalAmount: req.body.totalAmount,
                 scheduledFor: req.body.scheduledFor ? new Date(req.body.scheduledFor) : null,
-                // Add temporary values that will be updated during checkout
                 customerName: 'Pending',
                 email: 'pending@example.com',
                 tableNumber: 0
             });
             await order.save();
-            console.log('Created new order:', order);
+            console.log('[POST /] Created new order:', order);
         }
+
+        // Double check the order was saved
+        const savedOrder = await Order.findById(order._id);
+        console.log('[POST /] Verified saved order:', savedOrder);
+
         res.json(order);
     } catch (error) {
-        console.error('Error creating order:', error);
+        console.error('[POST /] Error creating order:', error);
         res.status(400).json({ message: 'Error creating order', error: error.message });
     }
 });

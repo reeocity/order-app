@@ -112,6 +112,10 @@
             
             <button type="submit" class="submit-btn" id="submitBtn">Complete Order</button>
         </form>
+
+        <div style="margin-top: 20px; text-align: center;">
+            <button onclick="window.location.href='/'" class="btn" style="background: #666;">Back to Order</button>
+        </div>
     </div>
 
     <script>
@@ -126,10 +130,16 @@
             ? 'http://localhost:3000' 
             : 'https://order-app-ashy-delta.vercel.app';
 
+        function logDebug(message) {
+            console.log(`[${new Date().toISOString()}] ${message}`);
+        }
+
         // Check if there's an active order on page load
         window.addEventListener('DOMContentLoaded', async () => {
             try {
-                console.log('Checking for active order...');
+                logDebug('Checking for active order...');
+                logDebug(`Using base URL: ${baseUrl}`);
+                
                 const response = await fetch(`${baseUrl}/api/orders/current`, {
                     credentials: 'include',
                     headers: {
@@ -137,22 +147,23 @@
                     }
                 });
                 
-                console.log('Response status:', response.status);
+                logDebug(`Response status: ${response.status}`);
                 const order = await response.json();
-                console.log('Current order:', order);
+                logDebug(`Current order: ${JSON.stringify(order, null, 2)}`);
                 
                 if (!order || !order._id) {
-                    console.log('No active order found');
+                    logDebug('No active order found');
                     errorElement.textContent = 'No active order found. Please create an order first.';
                     errorElement.style.display = 'block';
                     submitBtn.disabled = true;
                     
-                    // Redirect back to main page after 3 seconds
-                    setTimeout(() => {
-                        window.location.href = '/';
-                    }, 3000);
+                    // Add a button to go back
+                    errorElement.innerHTML += '<br><br><button onclick="window.location.href=\'/\'" class="btn">Return to Order Page</button>';
+                } else {
+                    logDebug('Active order found, enabling form');
                 }
             } catch (error) {
+                logDebug(`Error checking current order: ${error.message}`);
                 console.error('Error checking current order:', error);
                 errorElement.textContent = 'Error checking current order. Please try again.';
                 errorElement.style.display = 'block';
