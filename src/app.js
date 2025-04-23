@@ -33,7 +33,7 @@ app.use(session({
         maxAge: 24 * 60 * 60 * 1000 // 24 hours
     },
     store: process.env.MONGODB_URI ? new MongoStore({
-        url: process.env.MONGODB_URI,
+        mongoUrl: process.env.MONGODB_URI,
         collection: 'sessions'
     }) : null
 }));
