@@ -121,11 +121,31 @@
         const submitBtn = document.getElementById('submitBtn');
         const checkoutForm = document.getElementById('checkoutForm');
 
+        // Check if there's an active order on page load
+        window.addEventListener('DOMContentLoaded', async () => {
+            try {
+                const response = await fetch('/api/orders/current', {
+                    credentials: 'include'
+                });
+                const order = await response.json();
+                
+                if (!order || !order._id) {
+                    errorElement.textContent = 'No active order found. Please create an order first.';
+                    errorElement.style.display = 'block';
+                    submitBtn.disabled = true;
+                }
+            } catch (error) {
+                console.error('Error checking current order:', error);
+                errorElement.textContent = 'Error checking current order. Please try again.';
+                errorElement.style.display = 'block';
+            }
+        });
+
         async function handleSubmit(event) {
             event.preventDefault();
             
             const formData = {
-                customerName: document.getElementById('customerName').value,
+                name: document.getElementById('customerName').value,
                 email: document.getElementById('email').value,
                 tableNumber: parseInt(document.getElementById('tableNumber').value)
             };
@@ -144,17 +164,18 @@
                         'Content-Type': 'application/json'
                     },
                     credentials: 'include',
-                    body: JSON.stringify({
-                        name: formData.customerName,
-                        email: formData.email,
-                        tableNumber: formData.tableNumber
-                    })
+                    body: JSON.stringify(formData)
                 });
 
                 const responseData = await checkoutResponse.json();
 
                 if (!checkoutResponse.ok) {
                     throw new Error(responseData.message || 'Failed to initialize payment');
+                }
+
+                // Store order ID in localStorage before redirect
+                if (responseData.orderId) {
+                    localStorage.setItem('lastOrderId', responseData.orderId);
                 }
 
                 // Redirect to payment page
@@ -170,6 +191,12 @@
                 console.error('Error:', error);
                 errorElement.textContent = error.message || 'An error occurred while processing your payment. Please try again.';
                 errorElement.style.display = 'block';
+                // Redirect back to order page if no active order
+                if (error.message === 'No active order found') {
+                    setTimeout(() => {
+                        window.location.href = '/';
+                    }, 3000);
+                }
             } finally {
                 loadingElement.style.display = 'none';
                 submitBtn.disabled = false;

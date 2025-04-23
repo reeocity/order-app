@@ -16,7 +16,9 @@ const app = express();
 
 // Middleware
 app.use(cors({
-    origin: true, // Allow all origins
+    origin: process.env.NODE_ENV === 'production' 
+        ? 'https://order-app-ashy-delta.vercel.app' 
+        : 'http://localhost:3000',
     credentials: true
 }));
 
@@ -29,16 +31,27 @@ app.use(session({
     saveUninitialized: true,
     cookie: { 
         secure: process.env.NODE_ENV === 'production',
-        sameSite: 'none',
-        maxAge: 24 * 60 * 60 * 1000 // 24 hours
+        sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+        maxAge: 24 * 60 * 60 * 1000, // 24 hours
+        domain: process.env.NODE_ENV === 'production' 
+            ? '.vercel.app'
+            : 'localhost'
     },
     store: process.env.MONGODB_URI ? new MongoStore({
         mongoUrl: process.env.MONGODB_URI,
         collection: 'sessions',
         autoRemove: 'interval',
-        autoRemoveInterval: 10 // In minutes
+        autoRemoveInterval: 10, // In minutes
+        touchAfter: 24 * 3600 // Only update session once per 24 hours unless data changes
     }) : null
 }));
+
+// Add session debugging middleware
+app.use((req, res, next) => {
+    console.log('Session ID:', req.session.id);
+    console.log('Session Data:', req.session);
+    next();
+});
 
 // Serve static files
 app.use(express.static(path.join(__dirname, 'public')));
