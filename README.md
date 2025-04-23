@@ -40,7 +40,7 @@ A modern web application for managing food orders. This system allows customers 
 
 1. Clone the repository:
 ```bash
-git clone [your-repository-url]
+git clone https://github.com/reeocity/order-app.git
 cd order-app
 ```
 
@@ -195,5 +195,4 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 ## Contact
 
 For any questions or support, please contact:
-- Email: [your-email]
-- Project Link: [your-repository-url] 
+- Project Link: [https://github.com/reeocity/order-app](https://github.com/reeocity/order-app) 
