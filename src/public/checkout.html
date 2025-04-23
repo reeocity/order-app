@@ -126,38 +126,36 @@
             ? 'http://localhost:3000' 
             : 'https://order-app-ashy-delta.vercel.app';
 
-        function logDebug(message) {
-            console.log(`[${new Date().toISOString()}] ${message}`);
-        }
-
-        // Check if there's an active order on page load
+        // Check for active order on page load
         window.addEventListener('DOMContentLoaded', async () => {
             try {
-                logDebug('Checking for active order...');
-                logDebug(`Using base URL: ${baseUrl}`);
+                // First try to get order from localStorage
+                const pendingOrder = localStorage.getItem('pendingOrder');
                 
-                const response = await fetch(`${baseUrl}/api/orders/current`, {
-                    credentials: 'include',
-                    headers: {
-                        'Accept': 'application/json'
-                    }
-                });
-                
-                logDebug(`Response status: ${response.status}`);
-                const order = await response.json();
-                logDebug(`Current order: ${JSON.stringify(order, null, 2)}`);
-                
-                if (!order || !order._id) {
-                    logDebug('No active order found');
-                    errorElement.textContent = 'No active order found. Please create an order first.';
-                    errorElement.style.display = 'block';
-                    submitBtn.disabled = true;
+                if (!pendingOrder) {
+                    console.log('No pending order found in localStorage');
                     window.location.href = '/';
+                    return;
                 }
+
+                const orderData = JSON.parse(pendingOrder);
+                
+                // Check if order is too old (e.g., more than 1 hour)
+                const orderTime = new Date(orderData.timestamp);
+                const now = new Date();
+                if (now - orderTime > 60 * 60 * 1000) { // 1 hour
+                    console.log('Order is too old');
+                    localStorage.removeItem('pendingOrder');
+                    window.location.href = '/';
+                    return;
+                }
+
+                // Enable the form since we have a valid order
+                submitBtn.disabled = false;
+                
             } catch (error) {
-                logDebug(`Error checking current order: ${error.message}`);
-                console.error('Error checking current order:', error);
-                errorElement.textContent = 'Error checking current order. Please try again.';
+                console.error('Error checking order:', error);
+                errorElement.textContent = 'Error checking order. Please try again.';
                 errorElement.style.display = 'block';
                 submitBtn.disabled = true;
             }
@@ -166,10 +164,22 @@
         async function handleSubmit(event) {
             event.preventDefault();
             
+            const pendingOrder = localStorage.getItem('pendingOrder');
+            if (!pendingOrder) {
+                errorElement.textContent = 'No active order found. Please create an order first.';
+                errorElement.style.display = 'block';
+                window.location.href = '/';
+                return;
+            }
+
+            const orderData = JSON.parse(pendingOrder);
+            
             const formData = {
                 name: document.getElementById('customerName').value,
                 email: document.getElementById('email').value,
-                tableNumber: parseInt(document.getElementById('tableNumber').value)
+                tableNumber: parseInt(document.getElementById('tableNumber').value),
+                items: orderData.items,
+                totalAmount: orderData.totalAmount
             };
 
             try {
@@ -178,7 +188,6 @@
                 successElement.style.display = 'none';
                 submitBtn.disabled = true;
 
-                logDebug('Submitting checkout form...');
                 const checkoutResponse = await fetch(`${baseUrl}/api/orders/checkout`, {
                     method: 'POST',
                     headers: {
@@ -189,17 +198,14 @@
                     body: JSON.stringify(formData)
                 });
 
-                logDebug(`Checkout response status: ${checkoutResponse.status}`);
                 const responseData = await checkoutResponse.json();
-                logDebug(`Checkout response data: ${JSON.stringify(responseData, null, 2)}`);
 
                 if (!checkoutResponse.ok) {
                     throw new Error(responseData.message || 'Failed to initialize payment');
                 }
 
-                if (responseData.orderId) {
-                    localStorage.setItem('lastOrderId', responseData.orderId);
-                }
+                // Clear the pending order from localStorage
+                localStorage.removeItem('pendingOrder');
 
                 if (responseData.authorization_url) {
                     successElement.textContent = 'Redirecting to payment page...';
@@ -210,12 +216,9 @@
                 }
 
             } catch (error) {
-                logDebug(`Error during checkout: ${error.message}`);
+                console.error('Error:', error);
                 errorElement.textContent = error.message || 'An error occurred while processing your payment. Please try again.';
                 errorElement.style.display = 'block';
-                if (error.message === 'No active order found') {
-                    window.location.href = '/';
-                }
             } finally {
                 loadingElement.style.display = 'none';
                 submitBtn.disabled = false;

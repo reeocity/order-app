@@ -204,7 +204,15 @@ document.addEventListener('DOMContentLoaded', () => {
         
         try {
             console.log('Creating order with items:', currentOrder.items);
-            // Create the order in the database first
+            
+            // Store order in localStorage first
+            localStorage.setItem('pendingOrder', JSON.stringify({
+                items: currentOrder.items,
+                totalAmount: currentOrder.total,
+                timestamp: new Date().toISOString()
+            }));
+
+            // Create the order in the database
             const createOrderResponse = await fetch(`${baseUrl}/api/orders`, {
                 method: 'POST',
                 headers: {
@@ -218,26 +226,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 })
             });
 
-            console.log('Create order response status:', createOrderResponse.status);
             const orderData = await createOrderResponse.json();
-            console.log('Created order:', orderData);
-
-            if (!createOrderResponse.ok) {
-                throw new Error('Failed to create order');
-            }
-
-            // Store order ID in localStorage
+            
             if (orderData._id) {
                 localStorage.setItem('currentOrderId', orderData._id);
             }
 
             addMessage(`💳 Total amount: ₦${currentOrder.total.toLocaleString()}`, 'bot');
             addMessage('🔄 Redirecting to checkout...', 'bot');
-            
-            // Small delay to ensure the order is saved
-            setTimeout(() => {
-                window.location.href = '/checkout.html';
-            }, 1000);
+            window.location.href = '/checkout.html';
         } catch (error) {
             console.error('Error creating order:', error);
             addMessage('❌ Sorry, there was an error processing your order. Please try again.', 'bot');
