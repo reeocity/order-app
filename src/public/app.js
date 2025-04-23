@@ -8,6 +8,11 @@ document.addEventListener('DOMContentLoaded', () => {
     let menuItems = [];
     let isSelectingFromOptions = false;
 
+    // Get base URL for API calls
+    const baseUrl = window.location.hostname === 'localhost' 
+        ? 'http://localhost:3000' 
+        : 'https://order-app-ashy-delta.vercel.app';
+
     // Initial bot message
     addMessage('👋 Welcome to our restaurant! How can I help you today?', 'bot');
     showOptions();
@@ -198,11 +203,13 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         
         try {
+            console.log('Creating order with items:', currentOrder.items);
             // Create the order in the database first
-            const createOrderResponse = await fetch('/api/orders', {
+            const createOrderResponse = await fetch(`${baseUrl}/api/orders`, {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
                 },
                 credentials: 'include',
                 body: JSON.stringify({
@@ -211,16 +218,29 @@ document.addEventListener('DOMContentLoaded', () => {
                 })
             });
 
+            console.log('Create order response status:', createOrderResponse.status);
+            const orderData = await createOrderResponse.json();
+            console.log('Created order:', orderData);
+
             if (!createOrderResponse.ok) {
                 throw new Error('Failed to create order');
             }
 
+            // Store order ID in localStorage
+            if (orderData._id) {
+                localStorage.setItem('currentOrderId', orderData._id);
+            }
+
             addMessage(`💳 Total amount: ₦${currentOrder.total.toLocaleString()}`, 'bot');
             addMessage('🔄 Redirecting to checkout...', 'bot');
-            window.location.href = '/checkout.html';
+            
+            // Small delay to ensure the order is saved
+            setTimeout(() => {
+                window.location.href = '/checkout.html';
+            }, 1000);
         } catch (error) {
-            addMessage('❌ Sorry, there was an error processing your order. Please try again.', 'bot');
             console.error('Error creating order:', error);
+            addMessage('❌ Sorry, there was an error processing your order. Please try again.', 'bot');
         }
     }
 
