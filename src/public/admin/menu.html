@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Menu Management - Princess Luxury Hotels</title>
+    <link rel="stylesheet" href="/styles.css">
+    <link rel="stylesheet" href="/admin/admin.css">
+</head>
+<body>
+    <div class="admin-container">
+        <header class="admin-header">
+            <h1>Menu Management</h1>
+            <nav>
+                <a href="/admin">Dashboard</a>
+                <a href="/admin/menu.html" class="active">Menu</a>
+                <a href="/admin/orders.html">Orders</a>
+            </nav>
+        </header>
+
+        <main class="admin-main">
+            <div class="menu-management">
+                <!-- Add New Item Form -->
+                <div class="card">
+                    <h2>Add New Menu Item</h2>
+                    <form id="addItemForm">
+                        <div class="form-group">
+                            <label for="name">Item Name</label>
+                            <input type="text" id="name" name="name" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="price">Price (₦)</label>
+                            <input type="number" id="price" name="price" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="category">Category</label>
+                            <select id="category" name="category" required>
+                                <option value="Main Course">Main Course</option>
+                                <option value="Starters">Starters</option>
+                                <option value="Sides">Sides</option>
+                                <option value="Beverages">Beverages</option>
+                                <option value="Desserts">Desserts</option>
+                                <option value="Fast Food">Fast Food</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="description">Description</label>
+                            <textarea id="description" name="description"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label>Options</label>
+                            <div id="optionsContainer">
+                                <div class="option-item">
+                                    <input type="text" placeholder="Option Name" class="option-name">
+                                    <input type="text" placeholder="Choices (comma separated)" class="option-choices">
+                                    <input type="checkbox" class="option-required"> Required
+                                    <button type="button" class="remove-option">Remove</button>
+                                </div>
+                            </div>
+                            <button type="button" id="addOption">Add Option</button>
+                        </div>
+                        <button type="submit">Add Item</button>
+                    </form>
+                </div>
+
+                <!-- Menu Items List -->
+                <div class="card">
+                    <h2>Current Menu Items</h2>
+                    <div class="menu-items-list" id="menuItemsList">
+                        <!-- Items will be loaded here -->
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Edit Item Modal -->
+    <div id="editModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Edit Menu Item</h2>
+            <form id="editItemForm">
+                <input type="hidden" id="editItemId">
+                <div class="form-group">
+                    <label for="editName">Item Name</label>
+                    <input type="text" id="editName" name="name" required>
+                </div>
+                <div class="form-group">
+                    <label for="editPrice">Price (₦)</label>
+                    <input type="number" id="editPrice" name="price" required>
+                </div>
+                <div class="form-group">
+                    <label for="editCategory">Category</label>
+                    <select id="editCategory" name="category" required>
+                        <option value="Main Course">Main Course</option>
+                        <option value="Starters">Starters</option>
+                        <option value="Sides">Sides</option>
+                        <option value="Beverages">Beverages</option>
+                        <option value="Desserts">Desserts</option>
+                        <option value="Fast Food">Fast Food</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="editDescription">Description</label>
+                    <textarea id="editDescription" name="description"></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Options</label>
+                    <div id="editOptionsContainer">
+                        <!-- Options will be loaded here -->
+                    </div>
+                    <button type="button" id="addEditOption">Add Option</button>
+                </div>
+                <div class="form-group">
+                    <label for="editAvailable">Available</label>
+                    <input type="checkbox" id="editAvailable" name="available">
+                </div>
+                <button type="submit">Save Changes</button>
+            </form>
+        </div>
+    </div>
+
+    <script src="/admin/menu.js"></script>
+</body>
+</html> 

@@ -12,6 +12,19 @@ router.get('/menu', async (req, res) => {
     }
 });
 
+// Get single menu item by ID
+router.get('/menu/:id', async (req, res) => {
+    try {
+        const menuItem = await MenuItem.findById(req.params.id);
+        if (!menuItem) {
+            return res.status(404).json({ message: 'Menu item not found' });
+        }
+        res.json(menuItem);
+    } catch (error) {
+        res.status(500).json({ message: 'Error fetching menu item' });
+    }
+});
+
 // Add new menu item
 router.post('/menu', async (req, res) => {
     try {

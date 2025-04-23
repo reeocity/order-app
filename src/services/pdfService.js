@@ -39,7 +39,7 @@ function generateReceipt(order) {
             doc.font('Helvetica-Bold')
                .fontSize(32)
                .fillColor('#FFFFFF')
-               .text('PRINCESS LUXURY HOTELS', 50, 40)
+               .text('RESTAURANT BOT', 50, 40)
                .fontSize(12)
                .font('Helvetica')
                .text('Plot 31, Pipeline Road, ilorin', 50, 80);
@@ -155,7 +155,7 @@ function generateReceipt(order) {
             doc.font('Helvetica')
                .fontSize(11)
                .fillColor(colors.text)
-               .text('Thank you for choosing Princess Luxury Hotels!', 50, footerY + 15, { align: 'center' })
+               .text('Thank you for choosing Restaurant Bot!', 50, footerY + 15, { align: 'center' })
                .text('Please keep this receipt for your records.', 50, footerY + 35, { align: 'center' })
                .text(`Generated on: ${new Date().toLocaleString()}`, 50, footerY + 55, { align: 'center' });
 

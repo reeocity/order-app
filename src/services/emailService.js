@@ -73,7 +73,8 @@ async function sendOrderConfirmation(order) {
             
             <div style="padding: 20px;">
                 <p>Dear ${order.customerName},</p>
-                <p>Thank you for your order! Here are your order details:</p>
+                <p>Thank you for choosing Restaurant Bot!</p>
+                <p>Your order has been confirmed and is being processed.</p>
                 
                 <div style="background-color: #f8f9fa; padding: 15px; border-radius: 5px; margin: 20px 0;">
                     <p><strong>Order ID:</strong> ${order._id}</p>
@@ -87,7 +88,7 @@ async function sendOrderConfirmation(order) {
                 <p style="color: #666;">If you have any questions about your order, please contact us.</p>
                 
                 <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #eee; color: #666; text-align: center;">
-                    <p><strong>Princess Luxury Hotels</strong></p>
+                    <p><strong>Restaurant Bot Team</strong></p>
                     <p>Plot 31, Pipeline Road, ilorin</p>
                     <small>This is an automated email, please do not reply.</small>
                 </div>
@@ -97,9 +98,9 @@ async function sendOrderConfirmation(order) {
 
     try {
         await transporter.sendMail({
-            from: `"Princess Luxury Hotels" <${process.env.GMAIL_USER}>`,
+            from: `"Restaurant Bot" <${process.env.GMAIL_USER}>`,
             to: order.email,
-            subject: 'Order Confirmation - Princess Luxury Hotels',
+            subject: 'Order Confirmation - Restaurant Bot',
             html: emailContent
         });
         console.log('Order confirmation email sent successfully');

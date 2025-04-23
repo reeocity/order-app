@@ -63,148 +63,154 @@ const PORT = process.env.PORT || 3000;
 async function initializeMenu() {
     try {
         const MenuItem = require('./models/MenuItem');
-        // First, delete all existing items
-        await MenuItem.deleteMany({});
         
-        const defaultItems = [
-            {
-                name: 'Jollof Rice with Chicken',
-                price: 3500,
-                description: 'Spicy Nigerian jollof rice served with grilled chicken and plantains',
-                category: 'Main Course',
-                options: [
-                    {
-                        name: 'Portion',
-                        choices: ['Regular', 'Large'],
-                        required: true
-                    },
-                    {
-                        name: 'Extras',
-                        choices: ['Extra Chicken', 'Plantain', 'Coleslaw'],
-                        required: false
-                    }
-                ]
-            },
-            {
-                name: 'Egusi Soup with Pounded Yam',
-                price: 4000,
-                description: 'Traditional Nigerian soup made with ground melon seeds, served with pounded yam',
-                category: 'Main Course',
-                options: [
-                    {
-                        name: 'Meat Choice',
-                        choices: ['Goat', 'Beef', 'Fish', 'Chicken'],
-                        required: true
-                    },
-                    {
-                        name: 'Swallow Type',
-                        choices: ['Pounded Yam', 'Eba', 'Amala'],
-                        required: true
-                    }
-                ]
-            },
-            {
-                name: 'Suya',
-                price: 2500,
-                description: 'Spicy grilled meat skewers with yaji spice',
-                category: 'Starters',
-                options: [
-                    {
-                        name: 'Meat Type',
-                        choices: ['Beef', 'Chicken', 'Ram'],
-                        required: true
-                    },
-                    {
-                        name: 'Spice Level',
-                        choices: ['Mild', 'Medium', 'Hot'],
-                        required: true
-                    }
-                ]
-            },
-            {
-                name: 'Pepper Soup',
-                price: 3000,
-                description: 'Spicy Nigerian soup with aromatic spices',
-                category: 'Starters',
-                options: [
-                    {
-                        name: 'Type',
-                        choices: ['Goat', 'Catfish', 'Chicken'],
-                        required: true
-                    }
-                ]
-            },
-            {
-                name: 'Moi Moi',
-                price: 1500,
-                description: 'Steamed bean pudding with eggs and fish',
-                category: 'Sides',
-                options: [
-                    {
-                        name: 'Extras',
-                        choices: ['Boiled Egg', 'Fish', 'Both'],
-                        required: false
-                    }
-                ]
-            },
-            {
-                name: 'Chapman',
-                price: 1200,
-                description: 'Nigerian special cocktail drink',
-                category: 'Beverages',
-                options: [
-                    {
-                        name: 'Size',
-                        choices: ['Regular', 'Large'],
-                        required: true
-                    },
-                    {
-                        name: 'Ice',
-                        choices: ['No Ice', 'Regular Ice', 'Extra Ice'],
-                        required: true
-                    }
-                ]
-            },
-            {
-                name: 'Puff Puff',
-                price: 1000,
-                description: 'Sweet Nigerian doughnuts',
-                category: 'Desserts',
-                options: [
-                    {
-                        name: 'Quantity',
-                        choices: ['5 pieces', '10 pieces', '15 pieces'],
-                        required: true
-                    },
-                    {
-                        name: 'Topping',
-                        choices: ['Sugar', 'Powdered Sugar', 'None'],
-                        required: false
-                    }
-                ]
-            },
-            {
-                name: 'Chicken Shawarma',
-                price: 2500,
-                description: 'Grilled chicken wrap with veggies and special sauce',
-                category: 'Fast Food',
-                options: [
-                    {
-                        name: 'Size',
-                        choices: ['Regular', 'Large'],
-                        required: true
-                    },
-                    {
-                        name: 'Extras',
-                        choices: ['Extra Chicken', 'Extra Cheese', 'Extra Sauce'],
-                        required: false
-                    }
-                ]
-            }
-        ];
+        // Check if there are any existing items
+        const existingItems = await MenuItem.countDocuments();
+        
+        // Only create default items if the database is empty
+        if (existingItems === 0) {
+            const defaultItems = [
+                {
+                    name: 'Jollof Rice with Chicken',
+                    price: 3500,
+                    description: 'Spicy Nigerian jollof rice served with grilled chicken and plantains',
+                    category: 'Main Course',
+                    options: [
+                        {
+                            name: 'Portion',
+                            choices: ['Regular', 'Large'],
+                            required: true
+                        },
+                        {
+                            name: 'Extras',
+                            choices: ['Extra Chicken', 'Plantain', 'Coleslaw'],
+                            required: false
+                        }
+                    ]
+                },
+                {
+                    name: 'Egusi Soup with Pounded Yam',
+                    price: 4000,
+                    description: 'Traditional Nigerian soup made with ground melon seeds, served with pounded yam',
+                    category: 'Main Course',
+                    options: [
+                        {
+                            name: 'Meat Choice',
+                            choices: ['Goat', 'Beef', 'Fish', 'Chicken'],
+                            required: true
+                        },
+                        {
+                            name: 'Swallow Type',
+                            choices: ['Pounded Yam', 'Eba', 'Amala'],
+                            required: true
+                        }
+                    ]
+                },
+                {
+                    name: 'Suya',
+                    price: 2500,
+                    description: 'Spicy grilled meat skewers with yaji spice',
+                    category: 'Starters',
+                    options: [
+                        {
+                            name: 'Meat Type',
+                            choices: ['Beef', 'Chicken', 'Ram'],
+                            required: true
+                        },
+                        {
+                            name: 'Spice Level',
+                            choices: ['Mild', 'Medium', 'Hot'],
+                            required: true
+                        }
+                    ]
+                },
+                {
+                    name: 'Pepper Soup',
+                    price: 3000,
+                    description: 'Spicy Nigerian soup with aromatic spices',
+                    category: 'Starters',
+                    options: [
+                        {
+                            name: 'Type',
+                            choices: ['Goat', 'Catfish', 'Chicken'],
+                            required: true
+                        }
+                    ]
+                },
+                {
+                    name: 'Moi Moi',
+                    price: 1500,
+                    description: 'Steamed bean pudding with eggs and fish',
+                    category: 'Sides',
+                    options: [
+                        {
+                            name: 'Extras',
+                            choices: ['Boiled Egg', 'Fish', 'Both'],
+                            required: false
+                        }
+                    ]
+                },
+                {
+                    name: 'Chapman',
+                    price: 1200,
+                    description: 'Nigerian special cocktail drink',
+                    category: 'Beverages',
+                    options: [
+                        {
+                            name: 'Size',
+                            choices: ['Regular', 'Large'],
+                            required: true
+                        },
+                        {
+                            name: 'Ice',
+                            choices: ['No Ice', 'Regular Ice', 'Extra Ice'],
+                            required: true
+                        }
+                    ]
+                },
+                {
+                    name: 'Puff Puff',
+                    price: 1000,
+                    description: 'Sweet Nigerian doughnuts',
+                    category: 'Desserts',
+                    options: [
+                        {
+                            name: 'Quantity',
+                            choices: ['5 pieces', '10 pieces', '15 pieces'],
+                            required: true
+                        },
+                        {
+                            name: 'Topping',
+                            choices: ['Sugar', 'Powdered Sugar', 'None'],
+                            required: false
+                        }
+                    ]
+                },
+                {
+                    name: 'Chicken Shawarma',
+                    price: 2500,
+                    description: 'Grilled chicken wrap with veggies and special sauce',
+                    category: 'Fast Food',
+                    options: [
+                        {
+                            name: 'Size',
+                            choices: ['Regular', 'Large'],
+                            required: true
+                        },
+                        {
+                            name: 'Extras',
+                            choices: ['Extra Chicken', 'Extra Cheese', 'Extra Sauce'],
+                            required: false
+                        }
+                    ]
+                }
+            ];
 
-        await MenuItem.insertMany(defaultItems);
-        console.log('Default menu items created');
+            await MenuItem.insertMany(defaultItems);
+            console.log('Default menu items created');
+        } else {
+            console.log('Menu items already exist, skipping initialization');
+        }
     } catch (error) {
         console.error('Error initializing menu:', error);
     }
