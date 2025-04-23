@@ -20,7 +20,9 @@ app.use(session({
     secret: process.env.SESSION_SECRET || 'your-secret-key',
     resave: false,
     saveUninitialized: true,
-    cookie: { secure: process.env.NODE_ENV === 'production' }
+    cookie: { 
+        secure: process.env.NODE_ENV === 'production'
+    }
 }));
 
 // Serve static files
@@ -37,6 +39,19 @@ app.use('/api/admin', adminRoutes);
 // Root route
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
+
+// Admin routes
+app.get('/admin', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'admin', 'index.html'));
+});
+
+app.get('/admin/menu.html', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'admin', 'menu.html'));
+});
+
+app.get('/admin/orders.html', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'admin', 'orders.html'));
 });
 
 // Chat bot initial options
