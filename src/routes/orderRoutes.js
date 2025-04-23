@@ -94,6 +94,23 @@ router.post('/checkout', async (req, res) => {
     try {
         const { name, email, tableNumber, scheduledFor } = req.body;
 
+        // Validate Paystack configuration
+        if (!process.env.PAYSTACK_SECRET_KEY) {
+            console.error('Paystack secret key not configured');
+            return res.status(500).json({ 
+                message: 'Payment system not properly configured. Please contact support.',
+                error: 'PAYSTACK_NOT_CONFIGURED'
+            });
+        }
+
+        if (!process.env.BASE_URL) {
+            console.error('BASE_URL not configured');
+            return res.status(500).json({ 
+                message: 'Server configuration error. Please contact support.',
+                error: 'BASE_URL_NOT_CONFIGURED'
+            });
+        }
+
         const order = await Order.findOne({
             sessionId: req.session.id,
             status: 'pending'
@@ -148,7 +165,10 @@ router.post('/checkout', async (req, res) => {
         });
     } catch (error) {
         console.error('Error initializing payment:', error);
-        res.status(500).json({ message: 'Error initializing payment' });
+        res.status(500).json({ 
+            message: 'Error initializing payment. Please try again.',
+            error: error.message 
+        });
     }
 });
 

@@ -150,24 +150,24 @@
                     })
                 });
 
+                const responseData = await checkoutResponse.json();
+
                 if (!checkoutResponse.ok) {
-                    throw new Error('Failed to initialize payment');
+                    throw new Error(responseData.message || 'Failed to initialize payment');
                 }
 
-                const paymentData = await checkoutResponse.json();
-                
                 // Redirect to payment page
-                if (paymentData.authorization_url) {
+                if (responseData.authorization_url) {
                     successElement.textContent = 'Redirecting to payment page...';
                     successElement.style.display = 'block';
-                    window.location.href = paymentData.authorization_url;
+                    window.location.href = responseData.authorization_url;
                 } else {
                     throw new Error('No payment URL received');
                 }
 
             } catch (error) {
                 console.error('Error:', error);
-                errorElement.textContent = 'An error occurred while processing your payment. Please try again.';
+                errorElement.textContent = error.message || 'An error occurred while processing your payment. Please try again.';
                 errorElement.style.display = 'block';
             } finally {
                 loadingElement.style.display = 'none';
