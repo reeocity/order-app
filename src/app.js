@@ -4,6 +4,7 @@ const session = require('express-session');
 const bodyParser = require('body-parser');
 const path = require('path');
 const connectDB = require('./config/database');
+const MongoStore = require('connect-mongo');
 require('dotenv').config();
 
 // Import routes
@@ -14,15 +15,27 @@ const adminRoutes = require('./routes/adminRoutes');
 const app = express();
 
 // Middleware
-app.use(cors());
+app.use(cors({
+    origin: process.env.BASE_URL || 'http://localhost:3000',
+    credentials: true
+}));
+
 app.use(bodyParser.json());
+
+// Session configuration
 app.use(session({
     secret: process.env.SESSION_SECRET || 'your-secret-key',
     resave: false,
     saveUninitialized: true,
     cookie: { 
-        secure: process.env.NODE_ENV === 'production'
-    }
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'lax',
+        maxAge: 24 * 60 * 60 * 1000 // 24 hours
+    },
+    store: process.env.MONGODB_URI ? new MongoStore({
+        url: process.env.MONGODB_URI,
+        collection: 'sessions'
+    }) : null
 }));
 
 // Serve static files

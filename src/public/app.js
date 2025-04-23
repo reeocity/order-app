@@ -202,6 +202,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 headers: {
                     'Content-Type': 'application/json'
                 },
+                credentials: 'include',
                 body: JSON.stringify({
                     items: currentOrder.items,
                     totalAmount: currentOrder.total
