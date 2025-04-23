@@ -118,35 +118,45 @@ router.post('/cancel', async (req, res) => {
 // Initialize payment
 router.post('/checkout', async (req, res) => {
     try {
-        console.log('Checkout Session ID:', req.session.id);
-        const { name, email, tableNumber, scheduledFor } = req.body;
+        console.log('Checkout request body:', req.body);
+        const { name, email, tableNumber, items, totalAmount } = req.body;
 
-        // Find pending order for this session
-        const order = await Order.findOne({
+        if (!items || !items.length || !totalAmount) {
+            return res.status(400).json({ message: 'Invalid order data' });
+        }
+
+        // Create a new order or find existing one
+        let order = await Order.findOne({
             sessionId: req.session.id,
             status: 'pending'
         });
 
-        console.log('Found order at checkout:', order);
-
         if (!order) {
-            console.log('No active order found for session:', req.session.id);
-            return res.status(404).json({ message: 'No active order found' });
+            // Create new order with provided data
+            order = new Order({
+                sessionId: req.session.id,
+                customerName: name,
+                email: email,
+                tableNumber: tableNumber,
+                items: items,
+                totalAmount: totalAmount,
+                status: 'pending'
+            });
+        } else {
+            // Update existing order
+            order.customerName = name;
+            order.email = email;
+            order.tableNumber = tableNumber;
+            order.items = items;
+            order.totalAmount = totalAmount;
         }
 
-        // Update order with customer details
-        order.customerName = name;
-        order.email = email;
-        order.tableNumber = tableNumber;
-        if (scheduledFor) {
-            order.scheduledFor = new Date(scheduledFor);
-        }
         await order.save();
-        console.log('Updated order with customer details:', order);
+        console.log('Order saved:', order);
 
         // Initialize Paystack transaction
         const paymentData = {
-            amount: Math.round(order.totalAmount * 100), // Convert to kobo
+            amount: Math.round(totalAmount * 100), // Convert to kobo
             email: email,
             reference: `ORDER_${order._id}_${Date.now()}`,
             callback_url: `${process.env.BASE_URL || 'http://localhost:3000'}/api/orders/verify-payment?orderId=${order._id}`,

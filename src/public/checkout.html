@@ -188,6 +188,7 @@
                 successElement.style.display = 'none';
                 submitBtn.disabled = true;
 
+                console.log('Submitting checkout with data:', formData);
                 const checkoutResponse = await fetch(`${baseUrl}/api/orders/checkout`, {
                     method: 'POST',
                     headers: {
@@ -198,7 +199,9 @@
                     body: JSON.stringify(formData)
                 });
 
+                console.log('Checkout response status:', checkoutResponse.status);
                 const responseData = await checkoutResponse.json();
+                console.log('Checkout response:', responseData);
 
                 if (!checkoutResponse.ok) {
                     throw new Error(responseData.message || 'Failed to initialize payment');
@@ -216,7 +219,7 @@
                 }
 
             } catch (error) {
-                console.error('Error:', error);
+                console.error('Checkout error:', error);
                 errorElement.textContent = error.message || 'An error occurred while processing your payment. Please try again.';
                 errorElement.style.display = 'block';
             } finally {
